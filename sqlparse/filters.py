@@ -148,8 +148,11 @@ class IncludeStatement:
                     # Get path of file to include
                     value = value[1:-1]
                     for path in self.dirpaths:
+                        path = join(path, value)
+
                         try:
-                            path = join(path, value)
+                            for tv in self.includefile(path):
+                                yield tv
 
                         except IOError, err:
                             continue
@@ -159,8 +162,6 @@ class IncludeStatement:
                             break
 
                         else:
-                            for tv in self.includefile(path):
-                                yield tv
                             found = True
                             break
 
