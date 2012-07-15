@@ -94,15 +94,34 @@ def StripWhitespace(stream):
 class IncludeStatement:
     """Filter that enable a INCLUDE statement"""
 
-    def __init__(self, dirpath=".", maxrecursive=10, raiseexceptions=False):
+    def __init__(self, dirpaths=None, maxrecursive=10, raiseexceptions=False):
+        if dirpaths == None:
+            dirpaths = ['.']
+        elif isinstance(dirpaths, basestring):
+            dirpaths = [dirpaths]
+
         if maxrecursive <= 0:
             raise ValueError('Max recursion limit reached')
 
-        self.dirpath = abspath(dirpath)
+        self.dirpaths = map(abspath, dirpaths)
         self.maxRecursive = maxrecursive
         self.raiseexceptions = raiseexceptions
 
         self.detected = False
+
+    def includefile(self, path):
+        with open(path) as f:
+            raw_sql = f.read()
+
+        # Create new FilterStack to parse readed file
+        # and add all its tokens to the main stack recursively
+        stack = FilterStack()
+        stack.preprocess.append(IncludeStatement(self.dirpaths,
+                                                 self.maxRecursive - 1,
+                                                 self.raiseexceptions))
+
+        for tv in stack.run(raw_sql):
+            yield tv
 
     @memoize_generator
     def process(self, stack, stream):
@@ -123,45 +142,32 @@ class IncludeStatement:
                 if token_type in String.Symbol:
 #                if token_type in tokens.String.Symbol:
 
+                    found = False
+                    maxrecursionreached = None
+
                     # Get path of file to include
-                    path = join(self.dirpath, value[1:-1])
-
-                    try:
-                        f = open(path)
-                        raw_sql = f.read()
-                        f.close()
-
-                    # There was a problem loading the include file
-                    except IOError, err:
-                        # Raise the exception to the interpreter
-                        if self.raiseexceptions:
-                            raise
-
-                        # Put the exception as a comment on the SQL code
-                        yield Comment, u'-- IOError: %s\n' % err
-
-                    else:
-                        # Create new FilterStack to parse readed file
-                        # and add all its tokens to the main stack recursively
+                    value = value[1:-1]
+                    for path in self.dirpaths:
                         try:
-                            filtr = IncludeStatement(self.dirpath,
-                                                     self.maxRecursive - 1,
-                                                     self.raiseexceptions)
+                            path = join(path, value)
 
-                        # Max recursion limit reached
+                        except IOError, err:
+                            continue
+
                         except ValueError, err:
-                            # Raise the exception to the interpreter
-                            if self.raiseexceptions:
-                                raise
+                            maxrecursionreached = err
+                            break
 
-                            # Put the exception as a comment on the SQL code
-                            yield Comment, u'-- ValueError: %s\n' % err
+                        else:
+                            for tv in self.includefile(path):
+                                yield tv
+                            found = True
+                            break
 
-                        stack = FilterStack()
-                        stack.preprocess.append(filtr)
-
-                        for tv in stack.run(raw_sql):
-                            yield tv
+                    if not found:
+                        yield Comment, u'-- IOError: %s\n' % value
+                    elif maxrecursionreached:
+                        yield Comment, u'-- ValueError: %s\n' % maxrecursionreached
 
                     # Set normal mode
                     self.detected = False
