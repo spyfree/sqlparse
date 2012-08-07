@@ -39,6 +39,7 @@ def validate_options(options):
                             % reindent)
     elif reindent:
         options['strip_whitespace'] = True
+
     indent_tabs = options.get('indent_tabs', False)
     if indent_tabs not in [True, False]:
         raise SQLParseError('Invalid value for indent_tabs: %r' % indent_tabs)
@@ -46,6 +47,7 @@ def validate_options(options):
         options['indent_char'] = '\t'
     else:
         options['indent_char'] = ' '
+
     indent_width = options.get('indent_width', 2)
     try:
         indent_width = int(indent_width)
