@@ -3,6 +3,7 @@ Created on 07/08/2012
 
 @author: piranna
 '''
+from difflib  import ndiff
 from unittest import main, TestCase
 
 from sqlparse import format
@@ -33,6 +34,24 @@ class Issue_73(TestCase):
     "OFFERNO=19086, METAPRESCREENINGFORMNO=16331, JOBLEVELNO=NULL, "
     "OVERTIMESTATUSNO=NULL, JOBROLENO=NULL, EMPEQUITYESTABLISHMENTNO=NULL "
     "where JOBINFORMATIONNO=16256;")
+
+    def assertMultiLineEqual(self, first, second, msg=None):
+        """Assert that two multi-line strings are equal.
+
+        If they aren't, show a nice diff.
+
+        """
+        self.assertTrue(isinstance(first, basestring),
+                'First argument is not a string')
+        self.assertTrue(isinstance(second, basestring),
+                'Second argument is not a string')
+
+        if first != second:
+            message = ''.join(ndiff(first.splitlines(True),
+                                    second.splitlines(True)))
+            if msg:
+                message += " : " + msg
+            self.fail("Multi-line strings are unequal:\n" + message)
 
     def test_format(self):
         result = format(self.original_raw, reindent=True)
