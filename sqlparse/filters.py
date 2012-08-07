@@ -4,6 +4,8 @@ import re
 
 from os.path import abspath, join
 
+from __future__ import with_statement
+
 from sqlparse import sql, tokens as T
 from sqlparse.engine import FilterStack
 from sqlparse.lexer import tokenize
