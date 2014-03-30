@@ -87,8 +87,8 @@ class LexerMeta(type):
                                   % (tdef[0], state, cls, err)))
 
             assert type(tdef[1]) is tokens._TokenType or callable(tdef[1]), \
-                   ('token type must be simple type or callable, not %r'
-                    % (tdef[1],))
+                ('token type must be simple type or callable, not %r'
+                 % (tdef[1],))
 
             if len(tdef) == 2:
                 new_state = None
@@ -113,7 +113,7 @@ class LexerMeta(type):
                     itokens = []
                     for istate in tdef2:
                         assert istate != state, \
-                               'circular state ref %r' % istate
+                            'circular state ref %r' % istate
                         itokens.extend(cls._process_state(unprocessed,
                                                           processed, istate))
                     processed[new_state] = itokens
@@ -123,7 +123,7 @@ class LexerMeta(type):
                     for state in tdef2:
                         assert (state in unprocessed or
                                 state in ('#pop', '#push')), \
-                               'unknown new state ' + state
+                            'unknown new state ' + state
                     new_state = tdef2
                 else:
                     assert False, 'unknown new state def %r' % tdef2
@@ -134,7 +134,6 @@ class LexerMeta(type):
         cls._all_tokens = {}
         cls._tmpname = 0
         processed = cls._all_tokens[cls.__name__] = {}
-        #tokendefs = tokendefs or cls.tokens[name]
         for state in cls.tokens.keys():
             cls._process_state(cls.tokens, processed, state)
         return processed
@@ -195,7 +194,8 @@ class Lexer(object):
             # not a real string literal in ANSI SQL:
             (r'(""|".*?[^\\]")', tokens.String.Symbol),
             (r'(\[.*[^\]]\])', tokens.Name),
-            (r'((LEFT\s+|RIGHT\s+|FULL\s+)?(INNER\s+|OUTER\s+|STRAIGHT\s+)?|(CROSS\s+|NATURAL\s+)?)?JOIN\b', tokens.Keyword),
+            (r'((LEFT\s+|RIGHT\s+|FULL\s+)?(INNER\s+|OUTER\s+|STRAIGHT\s+)?'
+             r'|(CROSS\s+|NATURAL\s+)?)?JOIN\b', tokens.Keyword),
             (r'END(\s+IF|\s+LOOP)?\b', tokens.Keyword),
             (r'NOT NULL\b', tokens.Keyword),
             (r'CREATE(\s+OR\s+REPLACE)?\b', tokens.Keyword.DDL),

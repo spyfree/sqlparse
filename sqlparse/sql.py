@@ -220,18 +220,10 @@ class TokenList(Token):
             else:
                 yield token
 
-#    def __iter__(self):
-#        return self
-#
-#    def next(self):
-#        for token in self.tokens:
-#            yield token
-
     def is_group(self):
         return True
 
     def get_sublists(self):
-#        return [x for x in self.tokens if isinstance(x, TokenList)]
         for x in self.tokens:
             if isinstance(x, TokenList):
                 yield x
@@ -626,10 +618,9 @@ class Function(TokenList):
         for t in parenthesis.tokens:
             if isinstance(t, IdentifierList):
                 return t.get_identifiers()
-            elif isinstance(t, Identifier) or \
-                isinstance(t, Function) or \
-                t.ttype in T.Literal:
-                return [t,]
+            elif (isinstance(t, (Identifier, Function))
+                  or t.ttype in T.Literal):
+                return [t]
         return []
 
 

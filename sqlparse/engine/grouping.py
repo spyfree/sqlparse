@@ -114,7 +114,7 @@ def group_as(tlist):
     def _right_valid(token):
         # Currently limited to DML/DDL. Maybe additional more non SQL reserved
         # keywords should appear here (see issue8).
-        return not token.ttype in (T.DML, T.DDL)
+        return token.ttype not in (T.DML, T.DDL)
 
     def _left_valid(token):
         if token.ttype is T.Keyword and token.value in ('NULL'):
@@ -207,9 +207,10 @@ def group_identifier(tlist):
         if identifier_tokens and identifier_tokens[-1].ttype is T.Whitespace:
             identifier_tokens = identifier_tokens[:-1]
         if not (len(identifier_tokens) == 1
-                and (isinstance(identifier_tokens[0], (sql.Function, sql.Parenthesis))
-                     or identifier_tokens[0].ttype in (T.Literal.Number.Integer,
-                                                       T.Literal.Number.Float))):
+                and (isinstance(identifier_tokens[0], (sql.Function,
+                                                       sql.Parenthesis))
+                     or identifier_tokens[0].ttype in (
+                    T.Literal.Number.Integer, T.Literal.Number.Float))):
             group = tlist.group_tokens(sql.Identifier, identifier_tokens)
             idx = tlist.token_index(group) + 1
         else:
