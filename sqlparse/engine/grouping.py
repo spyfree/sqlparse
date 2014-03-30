@@ -5,11 +5,6 @@ import itertools
 from sqlparse import sql
 from sqlparse import tokens as T
 
-try:
-    next
-except NameError:  # Python < 2.6
-    next = lambda i: i.next()
-
 
 def _group_left_right(tlist, ttype, value, cls,
                       check_right=lambda t: True,
