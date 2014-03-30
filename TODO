@@ -1,3 +1,14 @@
+Goals for 0.2.0
+---------------
+
+X Drop support for Python <= 2.6
+~ Use six instead of 2to3
+~ Remove unused code
+
+
+Misc
+----
+
 * See
   https://groups.google.com/d/msg/sqlparse/huz9lKXt0Lc/11ybIKPJWbUJ
   for some interesting hints and suggestions.
