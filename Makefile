@@ -22,3 +22,4 @@ clean:
 	@rm -rf *.egg-info
 	@rm -rf dist
 	@rm -rf htmlcov
+	@find . -name '__pycache__' -delete
