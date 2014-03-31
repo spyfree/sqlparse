@@ -16,6 +16,9 @@ coverage:
 	py.test --cov=sqlparse --cov-report=html --cov-report=term
 
 clean:
-	$(PYTHON) setup.py clean
-	find . -name '*.pyc' -delete
-	find . -name '*~' -delete
+	@$(PYTHON) setup.py clean
+	@find . -name '*.pyc' -delete
+	@find . -name '*~' -delete
+	@rm -rf *.egg-info
+	@rm -rf dist
+	@rm -rf htmlcov
