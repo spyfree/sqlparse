@@ -5,6 +5,9 @@ X Drop support for Python <= 2.6
 X Remove SQLParserError from top level module.
 X Use six instead of 2to3
 ~ Remove unused code
+~ Possible deprecation:
+  - RightMarginFilter
+    Seems to be broken and not used. However, a replacement would be good.
 ~ Update documentation
 ~ Cleanup docs on PyPI/github
 ~ Write release notes
