@@ -10,7 +10,7 @@ import pytest
 import sqlparse
 from sqlparse import lexer
 from sqlparse import sql
-from sqlparse.tokens import *
+from sqlparse.tokens import *  # noqa
 
 
 class TestTokenize(unittest.TestCase):

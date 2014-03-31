@@ -89,10 +89,14 @@ class TestFormat(TestCaseBase):
         f = lambda x: sqlparse.format(x)
 
         # Because of the use of
-        self.ndiffAssertEqual(f(s1), "SELECT some_column LIKE 'value\r'")
-        self.ndiffAssertEqual(f(s2), "SELECT some_column LIKE 'value\r'\nWHERE id = 1\n")
-        self.ndiffAssertEqual(f(s3), "SELECT some_column LIKE 'value\\'\r' WHERE id = 1\n")
-        self.ndiffAssertEqual(f(s4), "SELECT some_column LIKE 'value\\\\\\'\r' WHERE id = 1\n")
+        self.ndiffAssertEqual(
+            f(s1), "SELECT some_column LIKE 'value\r'")
+        self.ndiffAssertEqual(
+            f(s2), "SELECT some_column LIKE 'value\r'\nWHERE id = 1\n")
+        self.ndiffAssertEqual(
+            f(s3), "SELECT some_column LIKE 'value\\'\r' WHERE id = 1\n")
+        self.ndiffAssertEqual(
+            f(s4), "SELECT some_column LIKE 'value\\\\\\'\r' WHERE id = 1\n")
 
     def test_outputformat(self):
         sql = 'select * from foo;'
