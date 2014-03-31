@@ -7,6 +7,7 @@ X Use six instead of 2to3
 ~ Remove unused code
 ~ Update documentation
 ~ Cleanup docs on PyPI/github
+~ Write release notes
 
 
 Misc
