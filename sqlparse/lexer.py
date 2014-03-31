@@ -26,17 +26,6 @@ class include(str):
     pass
 
 
-class combined(tuple):
-    """Indicates a state combined from multiple states."""
-
-    def __new__(cls, *args):
-        return tuple.__new__(cls, args)
-
-    def __init__(self, *args):
-        # tuple.__init__ doesn't do anything
-        pass
-
-
 def is_keyword(value):
     test = value.upper()
     return KEYWORDS_COMMON.get(test, KEYWORDS.get(test, tokens.Name)), value
@@ -108,18 +97,6 @@ class LexerMeta(type):
                         new_state = -int(tdef2[5:])
                     else:
                         assert False, 'unknown new state %r' % tdef2
-                elif isinstance(tdef2, combined):
-                    # combine a new state from existing ones
-                    new_state = '_tmp_%d' % cls._tmpname
-                    cls._tmpname += 1
-                    itokens = []
-                    for istate in tdef2:
-                        assert istate != state, \
-                            'circular state ref %r' % istate
-                        itokens.extend(cls._process_state(unprocessed,
-                                                          processed, istate))
-                    processed[new_state] = itokens
-                    new_state = (new_state,)
                 elif isinstance(tdef2, tuple):
                     # push more than one state
                     for state in tdef2:
