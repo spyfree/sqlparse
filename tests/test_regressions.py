@@ -2,6 +2,8 @@
 
 import sys
 
+import six
+
 from tests.utils import TestCaseBase, load_file
 
 import sqlparse
@@ -84,7 +86,7 @@ class RegressionTests(TestCaseBase):
         self.assertEqual(len(p.tokens), 7)
         self.assertEqual(p.tokens[2].__class__, sql.IdentifierList)
         self.assertEqual(p.tokens[-1].__class__, sql.Identifier)
-        self.assertEqual(p.tokens[-1].get_name(), u'foo')
+        self.assertEqual(p.tokens[-1].get_name(), 'foo')
         sp = p.tokens[-1].tokens[0]
         self.assertEqual(sp.tokens[3].__class__, sql.IdentifierList)
         # make sure that formatting works as expected
@@ -164,7 +166,8 @@ ALTER TABLE..... ;"""
 def test_comment_encoding_when_reindent():
     # There was an UnicodeEncodeError in the reindent filter that
     # casted every comment followed by a keyword to str.
-    sql = u'select foo -- Comment containing Ümläuts\nfrom bar'
+    sql = six.text_type(six.u(
+        'select foo -- Comment containing Ümläuts\nfrom bar'))
     formatted = sqlparse.format(sql, reindent=True)
     assert formatted == sql
 
@@ -194,7 +197,9 @@ def test_format_accepts_encoding():  # issue20
     sql = load_file('test_cp1251.sql', 'cp1251')
     formatted = sqlparse.format(sql, reindent=True, encoding='cp1251')
     if sys.version_info < (3,):
-        tformatted = u'insert into foo\nvalues (1); -- Песня про надежду\n'
+        tformatted = six.text_type(
+            'insert into foo\nvalues (1); -- Песня про надежду\n',
+            encoding='utf-8')
     else:
         tformatted = 'insert into foo\nvalues (1); -- Песня про надежду\n'
     assert formatted == tformatted

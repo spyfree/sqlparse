@@ -5,6 +5,8 @@
 import re
 import sys
 
+import six
+
 from sqlparse import tokens as T
 
 
@@ -32,7 +34,7 @@ class Token(object):
         if sys.version_info[0] == 3:
             return self.value
         else:
-            return unicode(self).encode('utf-8')
+            return six.text_type(self).encode('utf-8')
 
     def __repr__(self):
         short = self._get_repr_value()
@@ -51,15 +53,15 @@ class Token(object):
         .. deprecated:: 0.1.5
            Use ``unicode(token)`` (for Python 3: ``str(token)``) instead.
         """
-        return unicode(self)
+        return six.text_type(self)
 
     def _get_repr_name(self):
         return str(self.ttype).split('.')[-1]
 
     def _get_repr_value(self):
-        raw = unicode(self)
+        raw = six.text_type(self)
         if len(raw) > 7:
-            raw = raw[:6] + u'...'
+            raw = raw[:6] + six.text_type('...')
         return re.sub('\s+', ' ', raw)
 
     def flatten(self):
@@ -83,7 +85,7 @@ class Token(object):
             return type_matched
 
         if regex:
-            if isinstance(values, basestring):
+            if isinstance(values, six.string_types):
                 values = set([values])
 
             if self.ttype is T.Keyword:
@@ -96,7 +98,7 @@ class Token(object):
                     return True
             return False
 
-        if isinstance(values, basestring):
+        if isinstance(values, six.string_types):
             if self.is_keyword:
                 return values.upper() == self.normalized
             return values == self.value
@@ -172,7 +174,7 @@ class TokenList(Token):
         if sys.version_info[0] == 3:
             return ''.join(x.value for x in self.flatten())
         else:
-            return ''.join(unicode(x) for x in self.flatten())
+            return ''.join(six.text_type(x) for x in self.flatten())
 
     def _get_repr_name(self):
         return self.__class__.__name__
@@ -185,9 +187,9 @@ class TokenList(Token):
                 pre = ' +-'
             else:
                 pre = ' | '
-            print '%s%s%d %s \'%s\'' % (indent, pre, idx,
+            print('%s%s%d %s \'%s\'' % (indent, pre, idx,
                                         token._get_repr_name(),
-                                        token._get_repr_value())
+                                        token._get_repr_value()))
             if (token.is_group() and (max_depth is None or depth < max_depth)):
                 token._pprint_tree(max_depth, depth + 1)
 
@@ -272,7 +274,7 @@ class TokenList(Token):
         if not isinstance(idx, int):
             idx = self.token_index(idx)
 
-        for n in xrange(idx, len(self.tokens)):
+        for n in range(idx, len(self.tokens)):
             token = self.tokens[n]
             if token.match(ttype, value, regex):
                 return token
@@ -396,7 +398,7 @@ class TokenList(Token):
             alias = next_
         if isinstance(alias, Identifier):
             return alias.get_name()
-        return self._remove_quotes(unicode(alias))
+        return self._remove_quotes(six.text_type(alias))
 
     def get_name(self):
         """Returns the name of this identifier.
@@ -485,7 +487,7 @@ class Identifier(TokenList):
         next_ = self.token_next(self.token_index(marker), False)
         if next_ is None:
             return None
-        return unicode(next_)
+        return six.text_type(next_)
 
     def get_ordering(self):
         """Returns the ordering or ``None`` as uppercase string."""

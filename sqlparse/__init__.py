@@ -8,6 +8,8 @@
 
 __version__ = '0.1.11'
 
+import six
+
 
 # Setup namespace
 from sqlparse import engine
@@ -64,7 +66,7 @@ def split(sql, encoding=None):
     """
     stack = engine.FilterStack()
     stack.split_statements = True
-    return [unicode(stmt).strip() for stmt in stack.run(sql, encoding)]
+    return [six.text_type(stmt).strip() for stmt in stack.run(sql, encoding)]
 
 
 from sqlparse.engine.filter import StatementFilter

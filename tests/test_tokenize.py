@@ -1,8 +1,9 @@
 # -*- coding: utf-8 -*-
 
-import sys
 import types
 import unittest
+
+import six
 
 import pytest
 
@@ -21,14 +22,14 @@ class TestTokenize(unittest.TestCase):
         tokens = list(stream)
         self.assertEqual(len(tokens), 8)
         self.assertEqual(len(tokens[0]), 2)
-        self.assertEqual(tokens[0], (Keyword.DML, u'select'))
-        self.assertEqual(tokens[-1], (Punctuation, u';'))
+        self.assertEqual(tokens[0], (Keyword.DML, 'select'))
+        self.assertEqual(tokens[-1], (Punctuation, ';'))
 
     def test_backticks(self):
         s = '`foo`.`bar`'
         tokens = list(lexer.tokenize(s))
         self.assertEqual(len(tokens), 3)
-        self.assertEqual(tokens[0], (Name, u'`foo`'))
+        self.assertEqual(tokens[0], (Name, '`foo`'))
 
     def test_linebreaks(self):  # issue1
         s = 'foo\nbar\n'
@@ -50,7 +51,7 @@ class TestTokenize(unittest.TestCase):
         self.assertEqual(len(tokens), 3)
         self.assertEqual(tokens[0][0], Keyword.DDL)
         self.assertEqual(tokens[2][0], Name)
-        self.assertEqual(tokens[2][1], u'created_foo')
+        self.assertEqual(tokens[2][1], 'created_foo')
         s = "enddate"
         tokens = list(lexer.tokenize(s))
         self.assertEqual(len(tokens), 1)
@@ -72,7 +73,7 @@ class TestTokenize(unittest.TestCase):
         self.assertEqual(tokens[2][0], Number.Integer)
         self.assertEqual(tokens[2][1], '-1')
 
-    # Somehow this test fails on Python 3.2
+    # Somehow this test fails on Python 3
     @pytest.mark.skipif('sys.version_info >= (3,0)')
     def test_tab_expansion(self):
         s = "\t"
@@ -132,10 +133,9 @@ class TestTokenList(unittest.TestCase):
 
 
 class TestStream(unittest.TestCase):
-    def test_simple(self):
-        from cStringIO import StringIO
 
-        stream = StringIO("SELECT 1; SELECT 2;")
+    def test_simple(self):
+        stream = six.StringIO("SELECT 1; SELECT 2;")
         lex = lexer.Lexer()
 
         tokens = lex.get_tokens(stream)
@@ -152,9 +152,7 @@ class TestStream(unittest.TestCase):
         self.assertEqual(len(tokens), 9)
 
     def test_error(self):
-        from cStringIO import StringIO
-
-        stream = StringIO("FOOBAR{")
+        stream = six.StringIO("FOOBAR{")
 
         lex = lexer.Lexer()
         lex.bufsize = 4

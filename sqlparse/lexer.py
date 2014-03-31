@@ -15,9 +15,11 @@
 import re
 import sys
 
+import six
+from six import StringIO
+
 from sqlparse import tokens
 from sqlparse.keywords import KEYWORDS, KEYWORDS_COMMON
-from cStringIO import StringIO
 
 
 class include(str):
@@ -81,7 +83,7 @@ class LexerMeta(type):
 
             try:
                 rex = re.compile(tdef[0], rflags).match
-            except Exception, err:
+            except Exception as err:
                 raise ValueError(("uncompilable regex %r in state"
                                   " %r of %r: %s"
                                   % (tdef[0], state, cls, err)))
@@ -151,9 +153,7 @@ class LexerMeta(type):
         return type.__call__(cls, *args, **kwds)
 
 
-class Lexer(object):
-
-    __metaclass__ = LexerMeta
+class Lexer(six.with_metaclass(LexerMeta)):
 
     encoding = 'utf-8'
     stripall = False
@@ -228,8 +228,8 @@ class Lexer(object):
         if self.encoding == 'guess':
             try:
                 text = text.decode('utf-8')
-                if text.startswith(u'\ufeff'):
-                    text = text[len(u'\ufeff'):]
+                if text.startswith(six.text_type('\ufeff')):
+                    text = text[len(six.text_type('\ufeff')):]
             except UnicodeDecodeError:
                 text = text.decode('latin1')
         else:
@@ -251,13 +251,13 @@ class Lexer(object):
         Also preprocess the text, i.e. expand tabs and strip it if
         wanted and applies registered filters.
         """
-        if isinstance(text, basestring):
+        if isinstance(text, six.string_types):
             if self.stripall:
                 text = text.strip()
             elif self.stripnl:
                 text = text.strip('\n')
 
-            if sys.version_info[0] < 3 and isinstance(text, unicode):
+            if six.PY2 and isinstance(text, six.text_type):
                 text = StringIO(text.encode('utf-8'))
                 self.encoding = 'utf-8'
             else:
@@ -330,7 +330,7 @@ class Lexer(object):
                         pos += 1
                         statestack = ['root']
                         statetokens = tokendefs['root']
-                        yield pos, tokens.Text, u'\n'
+                        yield pos, tokens.Text, six.text_type('\n')
                         continue
                     yield pos, tokens.Error, text[pos]
                     pos += 1

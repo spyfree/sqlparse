@@ -4,16 +4,10 @@
 # the BSD License: http://www.opensource.org/licenses/bsd-license.php.
 
 import re
-import sys
 
-try:
-    from setuptools import setup, find_packages
-    packages = find_packages(exclude=('tests',))
-except ImportError:
-    if sys.version_info[0] == 3:
-        raise RuntimeError('distribute is required to install this package.')
-    from distutils.core import setup
-    packages = ['sqlparse', 'sqlparse.engine']
+from setuptools import setup, find_packages
+
+packages = find_packages(exclude=('tests',))
 
 
 def get_version():
@@ -21,7 +15,7 @@ def get_version():
 
     see http://stackoverflow.com/questions/458550/standard-way-to-embed-version-into-python-package
     """
-    VERSIONFILE='sqlparse/__init__.py'
+    VERSIONFILE = 'sqlparse/__init__.py'
     verstrline = open(VERSIONFILE, "rt").read()
     VSRE = r'^__version__ = [\'"]([^\'"]*)[\'"]'
     mo = re.search(VSRE, verstrline, re.M)
@@ -86,11 +80,6 @@ Parsing::
 VERSION = get_version()
 
 
-kwargs = {}
-if sys.version_info[0] == 3:
-    kwargs['use_2to3'] = True
-
-
 setup(
     name='sqlparse',
     version=VERSION,
@@ -108,16 +97,16 @@ setup(
         'Operating System :: OS Independent',
         'Programming Language :: Python',
         'Programming Language :: Python :: 2',
-        'Programming Language :: Python :: 2.4',
-        'Programming Language :: Python :: 2.5',
-        'Programming Language :: Python :: 2.6',
         'Programming Language :: Python :: 2.7',
         'Programming Language :: Python :: 3',
         'Programming Language :: Python :: 3.2',
         'Programming Language :: Python :: 3.3',
+        'Programming Language :: Python :: 3.4'
         'Topic :: Database',
         'Topic :: Software Development'
     ],
     scripts=['bin/sqlformat'],
-    **kwargs
+    install_requires=[
+        'six',
+    ],
 )
