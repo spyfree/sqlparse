@@ -31,6 +31,8 @@ def is_keyword(value):
     return KEYWORDS_COMMON.get(test, KEYWORDS.get(test, tokens.Name)), value
 
 
+# TODO(andi): Can this be removed? If so, add_filter and Lexer.filters
+# should be removed too.
 def apply_filters(stream, filters, lexer=None):
     """
     Use this method to apply an iterable of filters to

@@ -13,15 +13,6 @@
 class _TokenType(tuple):
     parent = None
 
-    def split(self):
-        buf = []
-        node = self
-        while node is not None:
-            buf.append(node)
-            node = node.parent
-        buf.reverse()
-        return buf
-
     def __contains__(self, val):
         return val is not None and (self is val or val[:len(self)] == self)
 
