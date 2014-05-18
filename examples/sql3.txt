@@ -1,0 +1,3 @@
+select 
+*
+from dds.dim_city as a,dds.dim_test b left join dds.dim_category b on a.test=b.test 
