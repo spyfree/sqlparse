@@ -1,3 +1,28 @@
-select 
-*
-from dds.dim_city as a,dds.dim_test b left join dds.dim_category b on a.test=b.test 
+select
+	t.city_id,
+		t.city_name_en,
+			t.city_name_cn,
+				t.sheng_name_cn
+				from
+				(
+				 	select
+							t.city_id,
+									t.city_name_en,
+											t.city_name_cn,
+													t.sheng_name_cn,
+															row_number() over(partition by t.city_id order by (case when t.city_name_en is null then 0 else length(t.city_name_en) end) desc) as rn
+																from
+																	(
+																	 		select
+																						city_id,
+																									trim(city_name) as city_name_en,
+																												trim(city_title) as city_name_cn,
+																															trim(city_sheng) as sheng_name_cn
+																																	from
+																																				bids.chaoge_babel_city
+																																						where
+																																									city_id is not null
+																																										) as t
+				) on t
+				where
+					t.rn = 1;

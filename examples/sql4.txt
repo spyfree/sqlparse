@@ -1,0 +1,82 @@
+select 
+    channel,
+	    count(distinct log_id) as uv,
+		    sum(pv) as pv
+			from
+			(
+			 select 
+			 		log_id,
+							a.session_id,
+									channel,
+											count(*) as pv
+												from 
+													(select 
+													 		distinct log_id,
+																	session_id,
+																			ad_id,
+																					case
+																								when is_click_flag = 1 and (referal like "%hao.360%" or referal like "%hao123%" or to_url like "%bannerid%") then "0"
+																											when referal is null or referal like "%baixing.com%" then "0"
+																														when referal like "%360.cn%" or referal like "%.so.com%" then "1.360"
+																																	when referal like "%baidu.com%" then "2.Baidu"
+																																				when referal like "%google.com%" then "3.Google"
+																																							when referal like "%sogou.com%" then "4.Sogou"
+																																										else "0"
+																																												end as channel
+																																													from ods.traffic
+																																														where dt= '20140513'
+																																															and traffic_type="web"
+																																																and page_depth=0 
+																																																	and to_url_type_id =4
+																																																		and log_id rlike "^[0-9]+$"
+																																																			and not(is_click_flag = 1 and (referal like "%hao.360%" or referal like "%hao123%"
+																																																							or to_url like "%bannerid%") )
+																																																				and not (referal is null or referal like "%baixing.com%")
+																																																					and
+																																																						(
+																																																						 		referal like "%360.cn%" or referal like "%.so.com%" or 
+																																																										referal like "%baidu.com%" or 
+																																																												referal like "%google.com%" or
+																																																														referal like "%sogou.com%")
+																																																							and not(
+																																																											coalesce(
+																																																														decodeAllUrl(parse_url(from_url, 'QUERY', 'word')),
+																																																																decodeAllUrl(parse_url(from_url, 'QUERY', 'keyword')),
+																																																																		decodeAllUrl(parse_url(from_url, 'QUERY', 'wd')),
+																																																																				decodeAllUrl(parse_url(from_url, 'QUERY', 'query')),
+																																																																						decodeAllUrl(parse_url(from_url, 'QUERY', 'key')),
+																																																																								decodeAllUrl(parse_url(from_url, 'QUERY', 'q')),
+																																																																										'baixing') like "%百姓%")  
+																																																							and not(
+																																																											coalesce(
+																																																														decodeAllUrl(parse_url(from_url, 'QUERY', 'word')),
+																																																																decodeAllUrl(parse_url(from_url, 'QUERY', 'keyword')),
+																																																																		decodeAllUrl(parse_url(from_url, 'QUERY', 'wd')),
+																																																																				decodeAllUrl(parse_url(from_url, 'QUERY', 'query')),
+																																																																						decodeAllUrl(parse_url(from_url, 'QUERY', 'key')),
+																																																																								decodeAllUrl(parse_url(from_url, 'QUERY', 'q')),
+																																																																										'baixing') like "%baixin%")
+																																																							)a
+																																																							left semi join
+																																																							(select
+																																																							 	       ad_id
+																																																									               from shots.ad
+																																																												               where from_unixtime(created_timestamp,'yyyyMMdd') >= '20140301'
+																																																															               and (attr['dangers'] like '%重复信息%' OR attr['dangers'] like '%90%'))c
+																																																							on a.ad_id = c.ad_id 
+																																																							join
+																																																								(select 
+																																																								 		session_id
+																																																											from
+																																																													ods.traffic
+																																																														where 
+																																																																dt = '20140513' and
+																																																																		traffic_type="web"
+																																																																		        )b
+																																																								on a.session_id = b.session_id
+																																																								group by log_id,
+																																																								    a.session_id,
+																																																									    channel
+																																																										)c
+																																																										group by
+																																																										channel
