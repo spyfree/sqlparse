@@ -23,6 +23,6 @@ select
 																																						where
 																																									city_id is not null
 																																										) as t
-				) on t
+				) as  t
 				where
 					t.rn = 1;

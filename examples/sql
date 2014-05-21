@@ -1,0 +1,30 @@
+select a.track_id, count(1) as p0 
+from
+(
+     select *
+	     from ods.traffic
+		     where
+			         dt = 20140512
+					         and traffic_type = 'web'
+							 ) a
+left join
+(
+     select track_id
+	     from ods.traffic
+		     where
+			         dt = 20140512
+					         and from_url_type_id = 8
+							         and to_url_type_id = 4
+									         and traffic_type = 'web'
+											         and (
+														             referal like '%baidu.com%'
+																	             or referal like '%so.360.cn%'
+																				             or referal like '%sogou.com%'
+																							             or referal like '%so.com%'
+																										             or referal like '%google.com%'
+																													             or referal like '%m.sm.cn%'
+																																         )
+													 ) b
+on a.track_id = b.track_id
+where b.track_id is not null
+group by a.track_id

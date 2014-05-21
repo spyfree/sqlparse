@@ -1,0 +1,1 @@
+select * from dds.dsfsd left join dsgs.hhah on dds.dsfsg.a=dss.hahahah.b where dds.dfsfs.s exists (select * from agbs.dsfsg) and dds.dsgsg.a in (select 1 from ghs.hahahaha) and 1=1

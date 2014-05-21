@@ -1,0 +1,27 @@
+(--筛选出某一天的普通置顶的order_id
+
+                    SELECT order_id
+					                   FROM (--这个子查询取出keys只有一个元素的记录
+
+										                            SELECT order_id,
+																	                                t.attris::text,
+																									                                sum(1) keys
+																																	                         FROM
+																																							                            (SELECT a.order_id,
+																																														                                    a.attris,
+																																																							                                   json_object_keys(attris->0->'keys') keys
+																																																															                               FROM dds.fact_order_additions a
+																																																																						                               INNER JOIN dds.fact_order_accrual b ON a.order_id = b.order_id
+																																																																													                               AND a.julian_created_date =b.julian_start_date
+																																																																																				                               WHERE julian_created_date >= '20140101'
+																																																																																											                                 AND b.service_type_id =5
+																																																																																																			                               AND a.attris::text LIKE '%[%'
+																																																																																																										                                 AND CASE WHEN json_array_length(attris) = 1 THEN 1 ELSE 0 END = 1) t
+																																														                         GROUP BY order_id,
+																																																				                                   t.attris::text HAVING sum(1) = 1) t
+									                      LEFT JOIN dds.dim_city c ON attris::json->0->>'city' = c.city_name_en
+														                     LEFT JOIN dds.dim_object b ON attris::json->0->'keys'->'areas'->>0 = b.id
+																			                    WHERE json_array_length(attris::json->0->'keys'->'areas') = 1
+																								                     AND --keys只有一个记录并且是areas
+																													  c.city_name_cn = b.name --areas里的meta和city是同一个城市
+																													   ) and aaa=bbb

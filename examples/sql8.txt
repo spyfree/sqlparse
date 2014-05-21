@@ -1,1 +1,1 @@
-create table dds.dgdgd AS (select * from dds.test)
+create table dds.dgdgd  as (select * from dds.test)
