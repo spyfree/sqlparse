@@ -7,6 +7,8 @@ import string
 from sqlparse.sql import IdentifierList, Identifier
 from sqlparse.tokens import Keyword, DML,DDL,Whitespace,Newline,String
 
+fromList = []
+toList = []
 oddList=[]
 functionList=[]
 
@@ -61,7 +63,7 @@ def extract_to_part(parsed):
 		elif item.ttype is Keyword and re.match(r"(^.*TABLE$)|(^.*INTO$)",item.value.upper()): 
 			pre_item = parsed.token_prev(parsed.token_index(item))
 			if pre_item.ttype is Keyword and re.match(r"(^.*TEMP$)",pre_item.value.upper()):
-					pass
+					pass#the create temp table case,ignored..
 			else:
 				to_seen = True
 			
@@ -72,18 +74,18 @@ def extract_from_part(parsed):
         if is_subselect(item):
             for x in extract_from_part(item):
                 yield x
+
         if item.ttype is None:  
+            print(str(item))
             idx = find_keyword(str(item),'IN')
             if idx!=-1:
                 subsql = str(item)[idx+3:len(str(item))]
-                #print(subsql+'hahah')
                 stmt = sqlparse.parse(subsql)[0] 
                 for x in extract_from_part(stmt):
                     yield x
             idx = find_keyword(str(item),'EXISTS')
             if idx != -1:
                 subsql = str(item)[idx+6:len(str(item))]
-                #print(subsql+'hahahhahaha')
                 stmt = sqlparse.parse(subsql)[0] 
                 for x in extract_from_part(stmt):
                     yield x
@@ -92,48 +94,39 @@ def extract_from_part(parsed):
             if is_subselect(item):
                 for x in extract_from_part(item):
                     yield x
+                from_seen = False
             elif item is None:
                 raise StopIteration
             elif item.ttype is Whitespace or item.ttype is Newline:
                 pass
             else:
-                #print(str(item)+"hahahahah")
                 yield item
                 from_seen = False
         elif item.ttype is Keyword and re.match(r"(^.*FROM$)|(^.*JOIN$)|(\bUSING\b)",item.value.upper()):
             pre_item = parsed.token_prev(parsed.token_index(item))
             if pre_item.ttype is DML and re.match(r"(^.*DELETE$)",pre_item.value.upper()):
-                oddList.append(parsed.token_next(parsed.token_index(item)).value)
+                oddList.append(parsed.token_next(parsed.token_index(item)).value)#the delete from case,put the delete table to oddList
             else:
                 from_seen = True
 
 
 def extract_table_names(token_stream):
-	for item in token_stream:
-		if isinstance(item,IdentifierList):
-			for identifier in item.get_identifiers():
-				tables = str.split(str(identifier))
-				for i in tables:
-					if re.match(r"(^.+\..+$)",str(i)):
-						yield i	
-		else:
-			tables = str.split(str(item))
-			for i in tables:
-					if re.match(r"(^.+\..+$)",str(i)):
-						yield i
-
-def extract_table_identifiers(token_stream):
     for item in token_stream:
-        if isinstance(item, IdentifierList):
+        if isinstance(item,IdentifierList):
             for identifier in item.get_identifiers():
-                yield identifier.get_name()
-        elif isinstance(item, Identifier):
-            yield item.get_name()
-        # It's a bug to check for Keyword here, but in the example
-        # above some tables names are identified as keywords...
-        elif item.ttype is Keyword:
-            yield item.value
-
+                tables = str.split(str(identifier))
+                for i in tables:
+                    if re.match(r"(^.+\..+$)",str(i)):
+                        if i[len(i)-1]=='(':                                                                                                                                    
+                            i = i[0:len(i)-1]
+                        yield i	
+        else:
+            tables = str.split(str(item))
+            for i in tables:
+                if re.match(r"(^.+\..+$)",str(i)):
+                    if i[len(i)-1]=='(':                                                                                                                                    
+                        i = i[0:len(i)-1]
+                    yield i
 
 def extract_from_tables(stmt):
     streamFrom = extract_from_part(stmt)
@@ -144,25 +137,30 @@ def extract_to_tables(stmt):
     return list(extract_table_names(streamTo))
 
 
+def extractSingleSql(sql):
+    sql = sqlparse.format(sql,reindent=True,keyword_case='upper')
+    strinfo = re.compile(r'\bAS\b')
+    sql = strinfo.sub(' ON ',sql) #temp convert as to on since splparse lib is not split 'as' keyword well
+    stmt = sqlparse.parse(sql)[0]
+    fromList.extend(extract_from_tables(stmt))
+    toList.extend(extract_to_tables(stmt))
+
+
 if __name__ == '__main__':
-	f = open(sys.argv[1],'r')
-	sql = f.read()
-	
-	sql = sqlparse.format(sql,reindent=True,keyword_case='upper')
-	print(sql)
-	strinfo = re.compile(r'\bAS\b')
-	sql = strinfo.sub(' ON ',sql) #temp convert as to on
-	
-	stmt = sqlparse.parse(sql)[0]
-	#for i in stmt.tokens:
-	#	print(str(i)+'#'+str(i.ttype))
-	
-	table_names_from = extract_from_tables(stmt)
-	table_names_to = extract_to_tables(stmt)
+    f = open(sys.argv[1],'r')
+    sqls_text = f.read()
 
-	table_names_from = list(set(table_names_from))
-	table_names_to = list(set(table_names_to))
+    sqls = sqlparse.split(sqls_text)	
+    for sql in sqls:
+        if len(sql)>0:
+            extractSingleSql(sql)
+    #for i in stmt.tokens:
+    #	print(str(i)+'#'+str(i.ttype))
+	
+    toList.extend(oddList)
 
-	print('from tables:',table_names_from)
-	print('to tables:',table_names_to)
-	print('odd List:',oddList)
+    fromList = list(set(fromList))
+    toList = list(set(toList))
+
+    print('from tables:',fromList)
+    print('to tables:',toList)
