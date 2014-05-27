@@ -14,7 +14,7 @@ class sqlParser:
         self.fromList = []
         self.toList = []
         self.oddList = []
-        self.db = {'agg','crawler','dds','pgtemp','rpt','hivetemp','logs','ods','pag','shots'}
+        self.db ={'agg','crawler','dds','pgtemp','rpt','hivetemp','logs','ods','pag','shots'}
 
     def is_subselect(self,parsed):
         if not parsed.is_group():
