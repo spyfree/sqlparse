@@ -61,6 +61,9 @@ class sqlParser:
                     if post_item is not None and post_item.ttype is Keyword and post_item.value.upper() == 'EXISTS':
                         to_seen = False
                         yield parsed.token_next(parsed.token_index(post_item))
+                elif item.ttype is Keyword and item.value.upper() == 'TABLE':
+                    to_seen = False
+                    yield parsed.token_next(parsed.token_index(item))
                 else:
                     to_seen = False
                     yield item

@@ -1,6 +1,1 @@
-create table dds.test  as
-select
-*
-from(
-        select * from dds.hahaha left join hhs.gsgs on dds.hahaha.a = hhs.gsgs.b
-        where dds.hahaha.sdg in (select * from dds.sdf left join dsgg.sdgsg on dds.sdf.a = dsgg.sdgsg.b where  exists (select * from dddd.sg)))
+insert into dds.test select a, b as 'b;' from dds.test1 as 'fdafdsa;fdasfdafsafsa'
