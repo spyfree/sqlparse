@@ -1,1 +1,0 @@
-create table pgtemp.hahah as select * from dds.hahahahha right outer join biz.ahahhaha on dds.hahahah.a = biz.hahahah.v

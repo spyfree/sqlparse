@@ -1,1 +1,0 @@
-create table dds.dgdgd  as (select * from dds.test)

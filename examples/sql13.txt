@@ -1,4 +1,0 @@
-select
-	*
-	from agg.nad_day,dds.dim_city
-	limit 200

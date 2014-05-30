@@ -1,4 +1,0 @@
-select * from dds.test1
-
-union 
- select * from dds.test

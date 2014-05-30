@@ -69,7 +69,7 @@ class sqlParser:
                     yield item
             elif item.ttype is Keyword and re.match(r"(^.*TABLE$)|(^.*INTO$)",item.value.upper()): 
                 pre_item = parsed.token_prev(parsed.token_index(item))
-                if pre_item.ttype is Keyword and re.match(r"(^.*TEMP$)",pre_item.value.upper()):
+                if pre_item is not None and pre_item.ttype is Keyword and re.match(r"(^.*TEMP$)",pre_item.value.upper()):
                         pass#the create temp table case,ignored..
                 else:
                     to_seen = True
@@ -110,7 +110,7 @@ class sqlParser:
                     from_seen = False
             elif item.ttype is Keyword and re.match(r"(^.*FROM$)|(^.*JOIN$)|(\bUSING\b)",item.value.upper()):
                 pre_item = parsed.token_prev(parsed.token_index(item))
-                if pre_item.ttype is DML and re.match(r"(^.*DELETE$)",pre_item.value.upper()):
+                if pre_item is not None and pre_item.ttype is DML and re.match(r"(^.*DELETE$)",pre_item.value.upper()):
                     self.oddList.append(parsed.token_next(parsed.token_index(item)).value)#the delete from case,put the delete table to oddList
                 else:
                     from_seen = True

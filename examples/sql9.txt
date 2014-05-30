@@ -1,2 +1,0 @@
-insert into dds.hahahah as select * from ds.ff left join fdf.sdsdg on dds.dfdsgdg.a = dfsf.sdgsgs.sgsgs
-
